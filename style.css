@@ -1,160 +1,120 @@
-* {
-    margin: 0;
-    font-family: sans-serif;
-}
-
-.display-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100vw;
-    min-height: 100vh;
-    background-color: #a18aff;
-}
-
-h1 {
-    font-size: 54px;
-    font-weight: bold;
-    color: white;
-    margin: 5% 0 0;
-}
-
-.add-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 50vw;
-    height: 50px;
-    background-color: white;
-    border-radius: 15px;
-    padding: 5px 15px 5px 0;
-    margin-top: 40px;
-}
-
-#input-task {
-    width: 80%;
-    height: 100%;
-    border: none;
-    border-radius: 15px;
-    background-color: rgba(255, 255, 255, 0);
-    outline: none;
-    caret-color: #a18aff;
-    font-size: 20px;
-    line-height: 10px;
+@font-face {
+    font-family: 'Poiret One';
+    src: url('assets/PoiretOne-Regular.woff2') format('woff2'),
+        url('assets/PoiretOne-Regular.woff') format('woff');
     font-weight: normal;
-    color: #717072;
+    font-style: normal;
+    font-display: swap;
 }
 
-#input-task::placeholder {
-    opacity: 0.5;
+:root {
+    --color: #9a82fb;
+    --background: #f4f1ff;
+    --shadow: 0px 10px 20px 5px rgba(44, 44, 44, .1);
 }
 
-#add-task-button {
-    width: 14%;
-    height: 85%;
-    border: #a18aff 2px solid;
-    border-radius: 15px;
-    background-color: rgba(255, 255, 255, 0);
-    color: #a18aff;
-    font-size: 15px;
+body {
+    min-height: 100vh;
+    margin: 0;
+    background-image: linear-gradient(to bottom, var(--background), var(--color));
+    font-family: 'Poiret One', sans-serif;
+    font-style: inherit;
     font-weight: bold;
-    cursor: pointer;
+    font-size: 18px;
 }
 
-#add-task-button:active {
-    background-color: #a18aff;
-    color: white;
-}
-
-.task-container {
-    margin: 40px 0;
-    width: 50%;
-}
-
-.task-container ul {
+.main {
+    width: 900px;
     display: flex;
     flex-direction: column;
-    padding-left: 0;
+    gap: 50px;
+    margin: 0 auto;
+    padding: 50px 0;
+    opacity: 1;
+    transition: opacity 1s;
 }
 
-.checkbox-task span {
-    margin-left: 10px;
+.main.loading {
+   opacity: 0;
 }
 
-.task-container li {
+.header {
+    margin: 0;
+    font-size: 60px;
+    line-height: 90px;
+    color: var(--color);
+}
+
+.task-creation-form {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    background-color: white;
+}
+
+#tasks-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.task {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    gap: 20px;
+    padding: 10px;
     background-color: white;
-    height: 50px;
-    margin: 10px 0;
-    padding: 5px 15px;
     border-radius: 15px;
-    color: #717072;
-    font-size: 16px;
+    margin-bottom: 50px;
 }
 
-input[type="checkbox"] {
-    border: #a18aff 2px solid;
-    width: 20px;
-    height: 20px;
-    vertical-align: bottom;
+.task:not(:first-of-type) {
+    margin-top: -50px;
 }
 
-.delete-btn {
-    border: #a18aff solid 2px;
-    background-color: rgba(255, 255, 255, 0);
-    border-radius: 30px;
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
+.task.done {
+    opacity: .25;
+    margin: 0;
 }
 
-.closeModal {
-    position: absolute;
-    cursor: pointer;
-}
-
-.closeModal::before,
-.closeModal::after {
-    content: '';
-    position: absolute;
+.task .description {
     display: block;
-    top: -1px;
-    width: 15px;
-    height: 3px;
-    background-color: #a18aff;
+    padding: 10px;
 }
 
-.closeModal::before {
-    transform: rotate(45deg);
+input,
+button {
+    height: 50px;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    border: none;
+    font: inherit;
+    color: var(--color);
 }
 
-.closeModal::after {
-    transform: rotate(-45deg);
+.task:focus,
+input:focus,
+button:focus,
+button:hover {
+    outline: 2px solid var(--color);
 }
 
-.delete-btn:active {
-    background-color: #a18aff;
+input {
+    flex-grow: 1;
 }
 
-.delete-btn:active .closeModal::before {
-    background-color: white;
+input::placeholder {
+    color: var(--color);
+    opacity: .25;
 }
 
-.delete-btn:active .closeModal::after {
-    background-color: white;
-}
-
-input[type=checkbox]:checked + label + span {
-    text-decoration: line-through;
-}
-
-input[type=checkbox] + label + span {
-    text-decoration: none;
-}
-
-.completed {
-    opacity: .5;
+button {
+    background-color: var(--background);
+    cursor: pointer;
 }

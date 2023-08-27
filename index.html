@@ -1,24 +1,164 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>To-Do List</title>
+    <title>Список дел</title>
+    <link
+        rel="icon"
+        type="image/svg+xml"
+        href="assets/logotype.svg"
+    />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <section class="display-container">
-        <h1>To-Do List</h1>
-        <div class="add-container">
-            <label for="input-task"></label>
-            <input id="input-task" placeholder="What is your next task?">
-            <button id="add-task-button" type="submit" style="text-transform: uppercase">Add Task</button>
-        </div>
-        <div class="task-container">
-            <ul id="task-list" style="list-style: none">
+    <script>
+        window.addEventListener("load", () => {
+            document.querySelector(".main").classList.remove("loading");
+        });
+    </script>
+    <main class="main loading">
+        <h1 class="header">
+            Список дел
+        </h1>
+        <form id="form" class="task-creation-form">
+            <input 
+                name="task-description"
+                placeholder="Какие планы?"
+            >
+            <button type="submit">
+                Создать задачу
+            </button>
+        </form>
+        <ul id="tasks-list"></ul>
+    </main>
+    <script>
+        class List {
+            constructor(root, tasks) {
+                this.root = root;
+                this.__tasks = tasks;
+            };
 
-            </ul>
-        </div>
-    </section>
-<script src="./toDoList.js"></script>
+            __sortTasksByActivity = () => {
+                this.__tasks = this.__tasks.sort((current, next) => {
+                    if (current.done) return 1;
+                    if (next.done) return -1;
+                    return 0;
+                });
+            };
+
+            __renderTasksToRoot = () => {
+                this.root.innerHTML = "";
+                const parser = new DOMParser();
+                this.__tasks.forEach((task) => {
+                    const node = parser.parseFromString(task.HTML, "text/html");
+                    this.root.append(node.body.firstChild);
+                });
+            };
+
+            __saveTasksToStorage = () => {
+                const string = JSON.stringify(this.__tasks);
+                window.localStorage.setItem("__tasks", string);
+            };
+
+            render = () => {
+                this.__sortTasksByActivity();
+                this.__renderTasksToRoot();
+                this.__saveTasksToStorage();
+            };
+
+            add = (task) => {
+                this.__tasks.push(task);
+                this.render();
+            };
+
+            remove = (id) => {
+                const index = this.__tasks.findIndex((task) => id === task.id);
+                this.__tasks.splice(index, 1);
+                this.render();
+            };
+
+            update = (id, updater) => {
+                const index = this.__tasks.findIndex((task) => id === task.id);
+                updater(this.__tasks[index]);
+                this.render();
+            };
+        }
+
+        class Task {
+            constructor(description, done = false, id = crypto.randomUUID()) {
+                this.id = id;
+                this.done = done;
+                this.description = description;
+            }
+
+            get HTML() {
+                return `
+                    <li 
+                        tabIndex="0"
+                        data-task-id="${this.id}"
+                        class="task${this.done ? " done" : ""}"
+                        onClick="toggle('${this.id}');"
+                        onKeyDown="toggleByKeyboard('${this.id}', event.code);"
+                    >
+                        <span class="description">${this.description}</span>
+                        <button 
+                            type="button" 
+                            onClick="remove('${this.id}'); event.stopPropagation();"
+                            onKeyDown="removeByKeyboard('${this.id}', event.code); event.stopPropagation();"
+                        >
+                            Удалить
+                        </button>
+                    </li>
+                `;
+            }
+        }
+
+        let stored = [];
+
+        try {
+            const parsed = JSON.parse(window.localStorage.getItem("__tasks"));
+            parsed.forEach(({ description, done, id }) => {
+                stored.push(new Task(description, done, id));
+            });
+        } catch {
+            stored.unshift(new Task("Разобраться почему не загрузились задачи из хранилища"));
+        }
+
+        const tasks = new List(window["tasks-list"], stored);
+
+        tasks.render();
+
+        window.form.elements["task-description"].focus();
+
+        const toggle = (id) => {
+            tasks.update(id, (task) => {
+                task.done = !task.done;
+            });
+        };
+
+        const remove = (id) => {
+            tasks.remove(id);
+        };
+
+        const toggleByKeyboard = (id, code) => {
+            if (code === "Enter" || code === "Space") toggle(id);                
+        }
+
+        const removeByKeyboard = (id, code) => {
+            if (code === "Enter" || code === "Space") remove(id);                
+        }
+
+        window.form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const input = form.elements["task-description"];
+            const description = input.value;
+            if (description.length === 0) return;
+            const task = new Task(description);
+            tasks.add(task);
+            form.reset();
+            input.focus();
+        });
+    </script>
 </body>
 </html>
